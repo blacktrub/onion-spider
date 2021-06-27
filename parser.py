@@ -70,7 +70,10 @@ def add_site(cur, domain, parent_id=None):
 
 def get_site(cur, domain):
     cur.execute("select id from sites where domain=?", (domain,))
-    return cur.fetchone()[0]
+    result = cur.fetchone()
+    if result is None:
+        return
+    return result[0]
 
 
 def parser(connect):
@@ -80,7 +83,8 @@ def parser(connect):
     for link in fetch_links(request_page(url)):
         queue.add(link)
         parse_result = urlparse(link)
-        add_site(cur, parse_result.netloc)
+        if not get_site(cur, parse_result.netloc):
+            add_site(cur, parse_result.netloc)
     connect.commit()
 
     while queue:
@@ -100,7 +104,8 @@ def parser(connect):
 
             GLOBAL_UNIQ.add(link)
             queue.add(link)
-            add_site(cur, urlparse(link).netloc, db_id)
+            if not get_site(cur, urlparse(link).netloc):
+                add_site(cur, urlparse(link).netloc, db_id)
         connect.commit()
 
         for x in cur.execute("select * from sites"):
