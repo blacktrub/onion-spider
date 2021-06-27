@@ -123,9 +123,6 @@ def parser(connect):
                 add_site(cur, urlparse(link).netloc, db_id)
         connect.commit()
 
-        for x in cur.execute("select * from sites"):
-            print(x)
-
 
 if __name__ == "__main__":
     con = sqlite3.connect("parser.db")
