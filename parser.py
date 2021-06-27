@@ -18,7 +18,7 @@ def create_schema(connect):
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS sites 
-        (id integer primary key autoincrement, parent_id integer, domain text unique)
+        (id integer primary key autoincrement, parent_id integer, domain text unique, title text)
     """
     )
     connect.commit()
@@ -55,6 +55,14 @@ def fetch_links(response):
     return links
 
 
+def parse_title(response):
+    soup = BeautifulSoup(response.content, "html.parser")
+    title = soup.find("title")
+    if title:
+        return title.text
+    return title
+
+
 def request_page(url):
     return requests.get(url, timeout=20, proxies=PROXIES)
 
@@ -76,8 +84,12 @@ def get_site(cur, domain):
     return result[0]
 
 
+def set_title(cur, id, title):
+    cur.execute("update sites set title=? where id=?", (title, id))
+
+
 def parser(connect):
-    url = "http://dirnxxdraygbifgc.onion/"
+    url = "http://s4k4ceiapwwgcm3mkb6e4diqecpo7kvdnfr5gg7sph7jjppqkvwwqtyd.onion"
     queue = set()
     cur = connect.cursor()
     for link in fetch_links(request_page(url)):
@@ -97,6 +109,9 @@ def parser(connect):
         except (SSLError, ConnectionError, ConnectTimeout):
             print("skip with error")
             continue
+
+        title = parse_title(page)
+        set_title(cur, db_id, title)
 
         for link in fetch_links(page):
             if link in GLOBAL_UNIQ:
