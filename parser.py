@@ -2,9 +2,17 @@ import sqlite3
 from urllib.parse import urlparse
 
 import requests
+import sentry_sdk
+from dotenv import dotenv_values
 from requests.exceptions import SSLError, ConnectTimeout, ConnectionError, ReadTimeout
 from bs4 import BeautifulSoup
 
+
+CONFIG = dotenv_values()
+sentry_sdk.init(
+    CONFIG["SENTRY_URL"],
+    traces_sample_rate=1.0,
+)
 
 PROXIES = {
     "http": "socks5h://127.0.0.1:9050",
