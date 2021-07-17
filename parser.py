@@ -21,6 +21,10 @@ PROXIES = {
 GLOBAL_UNIQ = set()
 
 
+class BadContentType(Exception):
+    pass
+
+
 def create_schema(connect):
     cur = connect.cursor()
     cur.execute(
@@ -72,6 +76,10 @@ def parse_title(response):
 
 
 def request_page(url):
+    response = requests.head(url, timeout=20, proxies=PROXIES)
+    ct = response.headers.get("Content-Type", "")
+    if ct != "text/html":
+        raise BadContentType(ct)
     return requests.get(url, timeout=20, proxies=PROXIES)
 
 
@@ -116,6 +124,9 @@ def parser(connect):
             page = request_page(link)
         except (SSLError, ConnectionError, ConnectTimeout, ReadTimeout):
             print("skip with error")
+            continue
+        except BadContentType:
+            print("skip page with bad content type")
             continue
 
         title = parse_title(page)
