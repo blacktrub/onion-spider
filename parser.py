@@ -2,7 +2,7 @@ import sqlite3
 from urllib.parse import urlparse
 
 import requests
-from requests.exceptions import SSLError, ConnectTimeout, ConnectionError
+from requests.exceptions import SSLError, ConnectTimeout, ConnectionError, ReadTimeout
 from bs4 import BeautifulSoup
 
 
@@ -106,7 +106,7 @@ def parser(connect):
         print("work with", link)
         try:
             page = request_page(link)
-        except (SSLError, ConnectionError, ConnectTimeout):
+        except (SSLError, ConnectionError, ConnectTimeout, ReadTimeout):
             print("skip with error")
             continue
 
