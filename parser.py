@@ -76,11 +76,11 @@ def parse_title(response):
 
 
 def request_page(url):
-    response = requests.head(url, timeout=20, proxies=PROXIES)
+    response = requests.head(url, timeout=20, proxies=PROXIES, allow_redirects=False)
     ct = response.headers.get("Content-Type", "")
     if ct != "text/html":
         raise BadContentType(ct)
-    return requests.get(url, timeout=20, proxies=PROXIES)
+    return requests.get(url, timeout=20, proxies=PROXIES, allow_redirects=False)
 
 
 def add_site(cur, domain, parent_id=None):
