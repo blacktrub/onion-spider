@@ -4,7 +4,13 @@ from urllib.parse import urlparse
 import requests
 import sentry_sdk
 from dotenv import dotenv_values
-from requests.exceptions import SSLError, ConnectTimeout, ConnectionError, ReadTimeout
+from requests.exceptions import (
+    SSLError,
+    ConnectTimeout,
+    ConnectionError,
+    ReadTimeout,
+    InvalidSchema,
+)
 from bs4 import BeautifulSoup
 
 
@@ -122,7 +128,7 @@ def parser(connect):
         print("work with", link)
         try:
             page = request_page(link)
-        except (SSLError, ConnectionError, ConnectTimeout, ReadTimeout):
+        except (SSLError, ConnectionError, ConnectTimeout, ReadTimeout, InvalidSchema):
             print("skip with error")
             continue
         except BadContentType:
